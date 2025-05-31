@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form, .produtos, .busca, .delete {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .resultado {
+            background: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gerenciador de Produtos</h1>
+
+    <form id="form-produto">
+        <h3>Cadastrar Produto</h3>
+        <input type="text" id="id" placeholder="ID" required>
+        <input type="text" id="modelo" placeholder="Modelo" required>
+        <input type="text" id="tamanho" placeholder="Tamanho" required>
+        <input type="text" id="marca" placeholder="Marca" required>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="produtos">
+        <h3>Listar Produtos</h3>
+        <button onclick="listarProdutos()">Listar Todos</button>
+        <div id="lista-produtos" class="resultado"></div>
+    </div>
+
+    <div class="busca">
+        <h3>Buscar Produto</h3>
+        <input type="text" id="busca-id" placeholder="ID">
+        <button onclick="buscarProduto()">Buscar</button>
+        <div id="resultado-busca" class="resultado"></div>
+    </div>
+
+    <div class="delete">
+        <h3>Deletar Produto</h3>
+        <input type="text" id="delete-id" placeholder="ID">
+        <button onclick="deletarProduto()">Deletar</button>
+        <div id="resultado-delete" class="resultado"></div>
+    </div>
+
+<script>
+    document.getElementById('form-produto').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const data = {
+            id: document.getElementById('id').value,
+            modelo: document.getElementById('modelo').value,
+            tamanho: document.getElementById('tamanho').value,
+            marca: document.getElementById('marca').value
+        };
+
+        fetch('/create-produto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => alert(data.mensagem || data.erro));
+    });
+
+    function listarProdutos() {
+        fetch('/produtos')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('lista-produtos').textContent = JSON.stringify(data, null, 2);
+            });
+    }
+
+    function buscarProduto() {
+        const id = document.getElementById('busca-id').value;
+        fetch(`/search/produto/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('resultado-busca').textContent = JSON.stringify(data, null, 2);
+            });
+    }
+
+    function deletarProduto() {
+        const id = document.getElementById('delete-id').value;
+        fetch(`/delete/produto/${id}`, {
+            method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('resultado-delete').textContent = JSON.stringify(data, null, 2);
+        });
+    }
+</script>
+
+</body>
+</html>
